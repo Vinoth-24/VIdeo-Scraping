@@ -1,0 +1,97 @@
+import moviepy.editor as mpy
+from pytube import YouTube
+import os
+import os.path
+
+# Video qualities for our output file
+vcodec = "libx264"
+videoquality = "24"
+# slow, ultrafast, super fast, very fast, faster, fast, medium, slow, slower, veryslow
+compression = "medium"
+
+# ----------------------------------------------------------------------------------------------------------
+# This is the main function
+# First It downloads the original video from youtube
+# Then it defines the Trimming time
+# Then It trims the video and
+# Sends that video for cropping
+# Final video is saved in a folder
+# Then next video link is used
+
+
+def download_video_series(video_links):
+    x = 1
+    for link in video_links:
+
+        file_name = "video" + str(x) + ".mp4"
+        a_path = "C:\\Users\\new\\VideoScraping\\save_path"
+        final_path = os.path.join(a_path, file_name)
+        print("Downloading file:%s" % file_name)
+
+        youtube = YouTube(link)
+        video = youtube.streams.get_highest_resolution().download('C:\\Users\\new\\VideoScraping\\save_path')
+        if os.path.exists(final_path):
+            os.remove(final_path)      # if video already exists, then delete the old file
+        os.rename(video, final_path)
+
+        print("%s downloaded!\n" % file_name)
+
+        loadtitle = final_path
+        savetitle = a_path + '\\' + "scraped" + "\\" + "scraped_video" + str(x) + '.mp4'
+
+        cuts = time_frame("0:0-0:5, 0:10-0:15, 0:22-0:27")
+
+        edit_video(loadtitle, savetitle, cuts)
+        x = x+1
+    print("All videos processed!")
+    return
+
+
+# 0:0-0:5,21:0-21:05  # example time frame
+# ------------------------------------------------------------------------------------------
+# Function to define the time frame for trimming video
+
+def time_frame(a):
+    split = a.split(',')
+    cuts = []
+
+    for i, j in enumerate(split):
+        # print(i,j)
+        temp = tuple(j.split('-'))
+        # print(temp)
+        cuts.append(temp)
+    return cuts
+
+# -------------------------------------------------------------------------------------------------------------
+# Trimming, Cropping video and Saving it in destination folder is done sequentially in this Function
+
+
+def edit_video(loadtitle, savetitle, cuts):
+    # load file
+    video = mpy.VideoFileClip(loadtitle)
+
+    # Trimming video
+    clips = []
+    for i, cut in enumerate(cuts):
+        clip = video.subclip(cut[0], cut[1])
+        clips.append(clip)
+
+    final_clip = mpy.concatenate_videoclips(clips)
+
+    # CROPPING A RECTANGLE OUT OF A CLIP
+    final = final_clip.crop(x1=622, width=400)  # Need to fix this
+
+    # Saving Video
+    final.write_videofile(savetitle, threads=4, fps=24,
+                          codec=vcodec,
+                          preset=compression,
+                          ffmpeg_params=["-crf", videoquality])
+
+    video.close()
+
+
+# Program Starts here
+
+if __name__ == '__main__':
+    video_links = ["https://www.youtube.com/watch?v=d95PPykB2vE", "https://www.youtube.com/watch?v=kLGaoYbR7LA"]
+    download_video_series(video_links)
