@@ -1,13 +1,8 @@
 import moviepy.editor as mpy
 import pandas as pd
-# from moviepy.editor import VideoFileClip
 from pytube import YouTube
-# import os
-# import shutil
-# import config_defaults.py
-from moviepy.editor import VideoFileClip, TextClip, CompositeVideoClip
+from moviepy.editor import VideoFileClip, CompositeVideoClip
 import os.path
-# import urllib.request
 
 # Video qualities for our output file
 vcodec = "libx264"
@@ -21,11 +16,12 @@ compression = "medium"
 # Then it defines the Trimming time
 # Then It trims the video and
 # Sends that video for cropping
+# Then adds Watermark to the video, then
 # Final video is saved in a folder
 # Then next video link is used
 
 
-def download_video_series(video_link, counter):
+def video_processing(video_link, counter):
     link = video_link
 
     # Saving name for the video
@@ -79,6 +75,7 @@ def time_frame(counter):
             temp = tuple(j.split('-'))
             # print(temp)
             cuts.append(temp)
+            # print(cuts)
         return cuts
 
 # -------------------------------------------------------------------------------------------------------------
@@ -99,6 +96,7 @@ def edit_video(loadtitle, savetitle, cuts, full_clip):
     else:
         clips = []
         for i, cut in enumerate(cuts):
+            # print(cut[0],cut[1])
             clip = video.subclip(cut[0], cut[1])
             clips.append(clip)
 
@@ -106,10 +104,16 @@ def edit_video(loadtitle, savetitle, cuts, full_clip):
 
 
     # CROPPING THE TRIMMED VIDEO into a RECTANGULAR SHAPE
-    final = final_clip.crop(x1=622, width=400)  # Need to fix this
+    final = final_clip.crop(x1=324, width=576)  # Fixed to 9:16
 
-    txt_clip = (TextClip("Trell", fontsize = 70, color = 'white').set_position('bottom').set_duration(10))
-    result = CompositeVideoClip([final, txt_clip])
+    # Watermarking Trell Logo
+    logo = (mpy.ImageClip("C:\\Users\\new\\VideoScraping\\Logo\\red-box.png")
+          .set_duration(final.duration)
+          .resize(height=50) # if you need to resize...
+          .margin(right=8, top=8, opacity=0) # (optional) logo-border padding
+          .set_pos(("right","top")))
+    result = CompositeVideoClip([final, logo])
+
 
     # Saving Video
     result.write_videofile(savetitle, threads=4, fps=24,
@@ -129,16 +133,24 @@ if __name__ == '__main__':
     final_data['Final Saved File Link'] = ''
 
     x = 1  # For naming file
-
+    error_count = 0
     # iterating over rows using iterrows() function
     for i, j in input_data.iterrows():
 
         counter = j[1]
         video_link = j[0]
-        savetitle = download_video_series(video_link, counter)
+
+        # Calling the main func with try except blocks
+        try:
+            savetitle = video_processing(video_link, counter)
+
+        except:
+            error_count += 1
+            savetitle = "Error while processing video"
+            print(savetitle, x)
         x = x+1
 
-        for enum, cell in enumerate(final_data['Final Saved File Link']):
-            final_data['Final Saved File Link'][enum] = savetitle
+        final_data['Final Saved File Link'][i] = savetitle  # New column with processed video location
     print("All videos processed!")
     print(final_data)
+    print("Total errors occured = ", error_count)
