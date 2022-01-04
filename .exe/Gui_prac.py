@@ -32,9 +32,6 @@ def open():
             my_label = Label(root, text="Editing has Begun.. Grab a coffee..!", font=("fixedsys", 16)).pack(pady=20)
             start = time.time()
             # Logo = resource_path("C:\\Users\\new\\VideoScraping\\red-box.png")
-            # print(Logo)
-            # Logo = "C:\\Users\\new\\VideoScraping\\red-box.png"
-            # print(Logo)
             errors, total_videos = main(data)
             end = time.time()
             error = ("Total no. of errors occurred: ", str(errors))
