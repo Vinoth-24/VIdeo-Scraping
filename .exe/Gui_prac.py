@@ -9,7 +9,7 @@ import sys
 
 
 root = Tk()
-root.title("Trell's Video editor")
+root.title(" Video editor")
 img = PhotoImage(file='C:\\Users\\new\\VideoScraping\\red-box.png')
 root.tk.call('wm', 'iconphoto', root._w, img)
 root.geometry("700x500")
