@@ -130,7 +130,7 @@ def edit_video(loadtitle, savetitle, cuts, full_clip):
     final = final_clip.crop(x1=324, width=576)  # Fixed to 9:16
 
     Logo = resource_path("C:\\Users\\new\\VideoScraping\\red-box.png")
-    # Watermarking Trell Logo
+    # Watermarking Logo
     print(Logo)
     logo = (ImageClip(Logo)
             .set_duration(final.duration)
@@ -170,7 +170,7 @@ def main(data):
 
     global x
     # data = pd.read_excel("C:\\Users\\new\\VideoScraping\\save_path\\Output\\Master_ PUGC Supply Generation Pipeline - November - Tamil-Demand.xlsx", sheet_name="Master_ PUGC Supply Generation ")
-    input_data = data[['Sourced Ref Video Link', 'Counter']]
+    input_data = data[['Sourced Ref Video Link', 'Counter']] #Counter is timing to make video cuts
     final_data = data[['Sourced Ref Video Link', 'Counter']]
     final_data['Final Saved File Link'] = ''
 
